@@ -5,17 +5,20 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     // Example POST request (replace URL with your API endpoint)
     try {
-      const res = await fetch("/api/auth/signin", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      setLoading(false);
       if (!res.ok) {
         setError("Invalid credentials");
       } else {
@@ -54,11 +57,11 @@ export default function SignIn() {
           <div style={{ color: "red", marginBottom: "1rem" }}>{error}</div>
         )}
         <button
-          className="bg-blue-400"
+          className={`${loading ? "bg-blue-300" : "bg-blue-400"}`}
           type="submit"
           style={{ width: "100%", padding: "0.5rem" }}
         >
-          Sign In
+          {loading ? "Log in..." : "Log in"}
         </button>
       </form>
 
