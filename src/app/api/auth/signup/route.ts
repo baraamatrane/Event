@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import User from "../../../../../lib/models/User";
+import connectDB from "../../../../../lib/db";
 
 export async function POST(req: NextRequest) {
   try {
+    await connectDB();
     const { email, password } = await req.json();
 
     if (!email || !password) {
