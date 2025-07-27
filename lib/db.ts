@@ -6,24 +6,42 @@ if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable");
 }
 
-// Global is used here to cache the connection in development
-let isConnected: boolean = false;
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: {
+    conn: typeof import("mongoose") | null;
+    promise: Promise<typeof import("mongoose")> | null;
+  };
+}
+
+if (!global.mongoose) {
+  global.mongoose = { conn: null, promise: null };
+}
+
+mongoose.connection.on("connected", () => {
+  console.log("✅ Mongoose connected to DB");
+});
+mongoose.connection.on("error", (err) => {
+  console.error("❌ Mongoose connection error:", err);
+});
+mongoose.connection.on("disconnected", () => {
+  console.log("⚠️ Mongoose disconnected");
+});
 
 const connectDB = async () => {
-  if (isConnected) {
+  if (global.mongoose.conn) {
     console.log("✅ MongoDB already connected");
-    return;
+    return global.mongoose.conn;
   }
-
-  try {
-    const db = await mongoose.connect(MONGODB_URI!);
-
-    isConnected = true;
-    console.log("✅ MongoDB connected");
-  } catch (error) {
-    console.error("❌ MongoDB connection failed:", error);
-    throw error;
+  if (!global.mongoose.promise) {
+    global.mongoose.promise = mongoose
+      .connect(MONGODB_URI!)
+      .then((mongoose) => {
+        return mongoose;
+      });
   }
+  global.mongoose.conn = await global.mongoose.promise;
+  return global.mongoose.conn;
 };
 
 export default connectDB;
