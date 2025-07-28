@@ -22,7 +22,7 @@ export default function SignIn() {
       if (!res.ok) {
         setError("Invalid credentials");
       } else {
-        // Handle successful sign-in (e.g., redirect)
+        setError("Log in sucsseful");
       }
     } catch {
       setError("Something went wrong");
