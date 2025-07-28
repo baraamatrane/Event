@@ -26,6 +26,11 @@ const EventSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
 });
 
 const Event = mongoose.models.Event || mongoose.model("Event", EventSchema);
