@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Category from "../../../../../lib/models/Category";
-import connectDB from "../../../../../lib/db";
+import Category from "../../../../lib/models/Category";
+import connectDB from "../../../../lib/db";
 
 export async function POST(req: NextRequest) {
   try {
