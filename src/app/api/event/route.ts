@@ -42,15 +42,40 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function GET(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const page = req.nextUrl.searchParams.get("page") || 1;
-    const limit = req.nextUrl.searchParams.get("limit") || 5;
+    const page = Number(req.nextUrl.searchParams.get("page")) || 1;
+    const limit = Number(req.nextUrl.searchParams.get("limit")) || 5;
     const search = req.nextUrl.searchParams.get("search_query");
     const category = req.nextUrl.searchParams.get("category");
     const location = req.nextUrl.searchParams.get("location");
+    const skip = (page - 1) * limit;
+
+    // Build query dynamically
+    const query: Record<string, any> = {};
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+    if (category) {
+      query.category = category;
+    }
+    if (location) {
+      // Use $regex for partial and case-insensitive location match
+      query.place = { $regex: location, $options: "i" };
+    }
+
+    const Events = await Event.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ date: 1 }); // Optional: sort by date
+
+    return NextResponse.json({ Events }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }

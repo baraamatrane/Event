@@ -18,3 +18,11 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+export async function GET() {
+  try {
+    const GetCategory = await Category.find();
+    return NextResponse.json({ Category: GetCategory }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error }, { status: 500 });
+  }
+}
