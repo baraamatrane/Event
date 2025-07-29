@@ -41,3 +41,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error }, { status: 500 });
   }
 }
+
+async function GET(req: NextRequest) {
+  try {
+    await connectDB();
+
+    const page = req.nextUrl.searchParams.get("page") || 1;
+    const limit = req.nextUrl.searchParams.get("limit") || 5;
+    const search = req.nextUrl.searchParams.get("search_query");
+    const category = req.nextUrl.searchParams.get("category");
+    const location = req.nextUrl.searchParams.get("location");
+  } catch (error) {
+    return NextResponse.json({ error }, { status: 500 });
+  }
+}
