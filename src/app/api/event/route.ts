@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     // Only allow the user from the token to create events for themselves
-    const { title, description, image, date, place, host, category } =
+    const { title, description, image, date, place, host, category, price } =
       await req.json();
 
     // Basic input validation
@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       !date ||
       !place ||
       !host ||
+      !price ||
       !category
     ) {
       return NextResponse.json(

@@ -5,6 +5,10 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  imagee: {
+    type: String,
+    require: true,
+  },
 });
 
 const Category =
