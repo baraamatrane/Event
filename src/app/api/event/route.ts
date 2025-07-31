@@ -61,6 +61,7 @@ export async function GET(req: NextRequest) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { place: { $regex: search, $options: "i" } },
       ];
     }
     if (category) {

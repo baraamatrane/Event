@@ -21,10 +21,6 @@ const EventSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  event_type: {
-    type: String,
-    required: true,
-  },
   place: {
     type: String,
     required: true,
