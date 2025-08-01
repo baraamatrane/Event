@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <div className="bg-[#fbfaf2] md:h-[700px] h-[520px] flex justify-center items-center flex-col gap-6">
+    <div className="bg-[#fbfaf2] md:h-[600px] h-[420px] flex justify-center items-center flex-col gap-8">
       <h1 className="md:text-7xl text-center text-4xl font-bold">
         Find your next <br />
         <span className="text-yellow-300">growth opportunity</span>
@@ -11,7 +11,25 @@ export default function Hero() {
         Discover hackathons, bootcamps, and workshops that will accelerate your
         learning journey
       </p>
-      <Button variant="default" className="rounded-md md:text-xl text-sm p-4">
+      <Button
+        variant="default"
+        className="rounded-md md:text-xl text-sm p-4 flex items-center"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-5 w-5 text-black"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
         Explore Events
       </Button>
     </div>

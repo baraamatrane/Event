@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 export default function Navbar() {
   return (
-    <div className="bg-white w-full md:p-5 p-3 fixed flex md:justify-around justify-between items-center">
+    <div className="bg-white w-full md:p-5 p-3 sticky top-0 z-50 flex md:justify-around justify-between items-center">
       <Link href="/" className="flex items-center cursor-pointer">
         <Image
           width={70}
