@@ -35,7 +35,7 @@ export default function Navbar() {
             </svg>
             <input
               type="text"
-              placeholder="Search events, locations, or skills..."
+              placeholder="Search event or locations..."
               className="focus:outline-none flex-1 px-2"
             />
           </div>
