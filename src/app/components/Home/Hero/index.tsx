@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <div className="bg-[#fbfaf2] md:h-[600px] h-[420px] flex justify-center items-center flex-col gap-8">
+    <div className="bg-[#fbfaf2] md:p-30 p-16 flex justify-center items-center flex-col gap-8">
       <h1 className="md:text-7xl text-center text-4xl font-bold">
         Find your next <br />
         <span className="text-yellow-300">growth opportunity</span>

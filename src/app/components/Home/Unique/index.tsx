@@ -1,7 +1,7 @@
 export default function Unique() {
   return (
-    <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 p-10">
-      <div className="flex flex-col justify-center items-center gap-4 p-5">
+    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 p-12">
+      <div className="flex flex-col justify-center items-center gap-4 p-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -16,7 +16,7 @@ export default function Unique() {
           online.
         </p>
       </div>
-      <div className="flex flex-col justify-center items-center gap-4 p-5">
+      <div className="flex flex-col justify-center items-center gap-4 p-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           stroke="currentColor"
@@ -35,7 +35,7 @@ export default function Unique() {
           passion.
         </p>
       </div>
-      <div className="flex flex-col justify-center items-center gap-4 p-5">
+      <div className="flex flex-col justify-center items-center gap-4 p-6">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           stroke="currentColor"
