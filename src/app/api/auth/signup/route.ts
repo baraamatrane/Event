@@ -3,13 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "../../../../../lib/models/User";
 import connectDB from "../../../../../lib/db";
 import jwt from "jsonwebtoken";
+import z from "zod";
+
+const SignupSchema = z.object({
+  email: z.string().email().max(50),
+  password: z.string().min(6).max(40),
+});
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const { email, password } = await req.json();
 
-    if (!email || !password) {
+    const parsed = SignupSchema.safeParse({ email, password });
+    if (!parsed.success) {
       return NextResponse.json(
         { error: "Email and Password are required" },
         { status: 400 }

@@ -2,13 +2,20 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import User from "../../../../../lib/models/User";
 import jwt from "jsonwebtoken";
+import z from "zod";
+
+const LoginSchema = z.object({
+  email: z.string().email().max(50),
+  password: z.string().min(6).max(40),
+});
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
-    if (!email || !password) {
+    const parsed = LoginSchema.safeParse({ email, password });
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Email and Password are required" },
+        { error: "Invalid email or password" },
         { status: 400 }
       );
     }

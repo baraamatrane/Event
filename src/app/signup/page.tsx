@@ -1,6 +1,7 @@
 "use client";
 import { redirect } from "next/navigation";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -74,6 +75,11 @@ export default function Signup() {
       <p style={{ marginTop: "1rem" }}>
         you already have an account? <a href="/Login">Log In</a>
       </p>
+      <hr className="mt-4" />
+
+      <button onClick={() => signIn("google", { callbackUrl: "/" })}>
+        Sign up with Google
+      </button>
     </div>
   );
 }

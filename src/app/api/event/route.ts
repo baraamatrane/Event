@@ -56,7 +56,12 @@ export async function GET(req: NextRequest) {
 
     // Build query dynamically
     const query: Record<string, any> = {};
-
+    if (page < 1 || limit < 1) {
+      return NextResponse.json(
+        { error: "Invalid pagination parameters" },
+        { status: 400 }
+      );
+    }
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
