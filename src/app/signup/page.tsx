@@ -15,7 +15,7 @@ export default function Signup() {
     setLoading("Sign up...");
     // Example POST request (replace URL with your API endpoint)
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -77,7 +77,10 @@ export default function Signup() {
       </p>
       <hr className="mt-4" />
 
-      <button onClick={() => signIn("google", { callbackUrl: "/" })}>
+      <button
+        onClick={() => signIn("google", { callbackUrl: "/" })}
+        className="bg-red-400 cursor-pointer justify-center w-full p-2 rounded-md text-white mt-4"
+      >
         Sign up with Google
       </button>
     </div>

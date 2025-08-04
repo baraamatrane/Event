@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../../../../lib/models/User";
+import User from "../../../../lib/models/User";
 import jwt from "jsonwebtoken";
 import z from "zod";
 
