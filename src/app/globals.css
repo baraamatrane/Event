@@ -146,3 +146,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
+.Toggle {
+  background-color: rgba(0, 0, 0, 0.6); /* black with low opacity */
+}

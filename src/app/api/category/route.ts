@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 }
 export async function GET() {
   try {
+    await connectDB();
     const GetCategory = await Category.find();
     return NextResponse.json({ Category: GetCategory }, { status: 200 });
   } catch (error) {

@@ -1,29 +1,73 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Workshop from "@/../public/workshop-1.jpg";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function SearchPage() {
+  const [Toggle, setToggle] = useState(false);
+  const toggleFilters = () => {
+    if (Toggle === false) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    setToggle((prev) => !prev);
+  };
+  const [Categories, setCategories] = useState([]);
+  const fetchCategories = async () => {
+    const res = await fetch("/api/category");
+    const data = await res.json();
+    setCategories(data.Category || []);
+  };
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   return (
-    <div className="flex gap-10 bg-[#fafafa] w-full p-10">
-      <div className="flex bg-white rounded-2xl border-r-2 p-4 justify-between shadow-2xs border-gray-200 w-1/3 flex-col items-start gap-5 h-screen">
-        <div className="flex items-center p-6 justify-center">
+    <div className={`flex gap-10 w-full md:p-10 p-5`}>
+      <div
+        className={`absolute inset-0 bg-black w-full h-full md:hidden block z-50 opacity-75 ${
+          Toggle === false ? "hidden" : "block"
+        }`}
+      ></div>
+      <div
+        className={`flex bg-white md:rounded-2xl border-r-2 md:p-4 p-0 justify-between shadow-2xs border-gray-200 md:w-1/3 md:sticky absolute md:top-32 top-0 md:z-40 z-50 w-10/12 flex-col items-start md:gap-10 gap-2 md:h-full h-screen ${
+          Toggle === false ? "left-[-86%]" : "left-0"
+        } transition-all duration-300 ease-in-out`}
+      >
+        <div className="flex items-center p-3 justify-between w-full">
+          <div className="flex items-center gap-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-filter text-yellow-300 h-5 w-5"
+            >
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <h2 className="text-2xl font-bold text-gray-800 ml-2">Filters</h2>
+          </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="lucide lucide-filter text-yellow-300 h-5 w-5"
+            fill="currentColor"
+            height="600px"
+            width="600px"
+            version="1.1"
+            id="Capa_1"
+            viewBox="0 0 460.775 460.775"
+            className="text-black md:hidden block h-5 w-5 cursor-pointer"
+            onClick={() => toggleFilters()}
           >
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55  c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55  c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505  c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55  l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719  c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z" />
           </svg>
-          <h2 className="text-2xl font-bold text-gray-800 ml-2">Filters</h2>
         </div>
-        <div className="flex flex-col items-start gap-4 w-full px-6">
+        <div className="flex flex-col items-start gap-2 w-full px-6">
           <div className="flex justify-center items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -36,13 +80,18 @@ export default function SearchPage() {
             <label className="text-gray-600">Category</label>
           </div>
           <select className="w-full p-2 border rounded-md">
-            <option value="">All Categories</option>
-            <option value="music">Music</option>
-            <option value="art">Art</option>
-            <option value="technology">Technology</option>
+            <option value="All" className="text-gray-500">
+              All Categories
+            </option>
+            {Categories.length > 0 &&
+              Categories.map((category: { _id: number; name: string }) => (
+                <option key={category._id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
           </select>
         </div>
-        <div className="flex flex-col items-start w-full gap-4 px-6">
+        <div className="flex flex-col items-start w-full gap-2 px-6">
           <div className="flex justify-center items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +141,7 @@ export default function SearchPage() {
             </label>
           </div>
         </div>
-        <div className="flex flex-col items-start w-full gap-4 px-6">
+        <div className="flex flex-col items-start w-full gap-2 px-6">
           <div className="flex justify-center items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -141,7 +190,7 @@ export default function SearchPage() {
               <span className="text-sm font-medium">Free Only</span>
             </label>
           </div>
-          <div className="flex flex-col items-start w-full gap-4">
+          <div className="flex flex-col items-start w-full gap-2">
             <h2 className="text-xl font-semibold">Event Type</h2>
             <div className="flex flex-col gap-2 px-6">
               <div className="flex items-center gap-2">
@@ -159,12 +208,30 @@ export default function SearchPage() {
             </div>
           </div>
         </div>
-        <Button className="rounded-2xl w-full">Apply Filters</Button>
+        <Button className="rounded-2xl w-full mb-3">Apply Filters</Button>
       </div>
-      <div className="flex flex-col w-full h-screen">
-        <div>
-          <h1 className="text-2xl font-bold">Search Results</h1>
-          <p className="text-gray-600">6 events found</p>
+      <div className="flex flex-col w-full h-full">
+        <div className="flex justify-between items-center">
+          <div>
+            {" "}
+            <h1 className="text-2xl font-bold">Search Results</h1>
+            <p className="text-gray-600">6 events found</p>
+          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-yellow-300 bg-amber-100 md:hidden block rounded-full p-2 h-auto w-10 cursor-pointer"
+            onClick={() => toggleFilters()}
+          >
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {Array.from({ length: 6 }).map((_, index) => (
