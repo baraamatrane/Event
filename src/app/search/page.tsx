@@ -19,14 +19,11 @@ export default function SearchPage() {
   const [Events, setEvents] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [Loading, setLoading] = useState(true);
-  const [Paid, setPaid] = useState("");
+  const [Paid, setPaid] = useState("All");
   const [Location, setLocation] = useState("");
   const search = useSearchParams();
-  const [selectedLocation, setSelectedLocation] = useState("All");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [Type, setType] = useState([""]);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedLocation(e.target.value);
-  };
   const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setType((prev) =>
@@ -43,6 +40,28 @@ export default function SearchPage() {
     const res = await fetch(
       `/api/event?search_query=${encodeURIComponent(query)}`
     );
+    const data = await res.json();
+    setEvents(data.Events || []);
+    setLoading(false);
+  };
+  const HandleFilter = async () => {
+    setLoading(true);
+    let url = `/api/event?search_query=${encodeURIComponent(
+      search.get("search") || ""
+    )}`;
+    if (selectedCategory && selectedCategory !== "All") {
+      url += `&category=${encodeURIComponent(selectedCategory)}`;
+    }
+    if (selectedLocation) {
+      url += `&location=${encodeURIComponent(selectedLocation)}`;
+    }
+    if (Paid && Paid !== "") {
+      url += `&paid=${encodeURIComponent(Paid)}`;
+    }
+    if (Type.length > 0 && Type[0] !== "") {
+      url += `&type=${encodeURIComponent(Type.join(","))}`;
+    }
+    const res = await fetch(url);
     const data = await res.json();
     setEvents(data.Events || []);
     setLoading(false);
@@ -124,7 +143,7 @@ export default function SearchPage() {
             </option>
             {Categories.length > 0 &&
               Categories.map((category: { _id: number; name: string }) => (
-                <option key={category._id} value={category.name}>
+                <option key={category._id} value={category._id}>
                   {category.name}
                 </option>
               ))}
@@ -183,8 +202,8 @@ export default function SearchPage() {
                 type="radio"
                 name="location"
                 value="All"
-                checked={selectedLocation === "All"}
-                onChange={handleChange}
+                checked={Paid === "All"}
+                onChange={(e) => setPaid(e.target.value)}
                 className="accent-yellow-300"
               />
               <span className="text-sm font-medium">All events</span>
@@ -193,9 +212,9 @@ export default function SearchPage() {
               <input
                 type="radio"
                 name="location"
+                onChange={(e) => setPaid(e.target.value)}
                 value="Paid"
-                checked={selectedLocation === "Paid"}
-                onChange={handleChange}
+                checked={Paid === "Paid"}
                 className="accent-yellow-300"
               />
               <span className="text-sm font-medium">Paid only</span>
@@ -204,8 +223,8 @@ export default function SearchPage() {
               <input
                 type="radio"
                 name="location"
-                checked={selectedLocation === "Free"}
-                onChange={handleChange}
+                checked={Paid === "Free"}
+                onChange={(e) => setPaid(e.target.value)}
                 value="Free"
                 className="accent-yellow-300"
               />
@@ -245,10 +264,7 @@ export default function SearchPage() {
             </div>
           </div>
         </div>
-        <Button
-          className="rounded-2xl w-full mb-3"
-          disabled={Events.length === 0}
-        >
+        <Button className="rounded-2xl w-full mb-3" onClick={HandleFilter}>
           Apply Filters
         </Button>
       </div>
@@ -340,7 +356,7 @@ export default function SearchPage() {
         ) : (
           // Events grid
           <>
-            {Events.length === 0 && Loading ? (
+            {Events.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <p className="text-gray-500">
                   No events found for this search.
