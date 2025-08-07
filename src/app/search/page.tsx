@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Workshop from "@/../public/workshop-1.jpg";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function SearchPage() {
   const [Toggle, setToggle] = useState(false);
@@ -15,16 +16,50 @@ export default function SearchPage() {
     setToggle((prev) => !prev);
   };
   const [Categories, setCategories] = useState([]);
+  const [Events, setEvents] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [Loading, setLoading] = useState(true);
+  const [Paid, setPaid] = useState("");
+  const [Location, setLocation] = useState("");
+  const search = useSearchParams();
+  const [selectedLocation, setSelectedLocation] = useState("All");
+  const [Type, setType] = useState([""]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedLocation(e.target.value);
+  };
+  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setType((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
+    console.log("Selected Types:", Type);
+  };
   const fetchCategories = async () => {
     const res = await fetch("/api/category");
     const data = await res.json();
     setCategories(data.Category || []);
   };
+  const fetchEvent = async (query: string) => {
+    const res = await fetch(
+      `/api/event?search_query=${encodeURIComponent(query)}`
+    );
+    const data = await res.json();
+    setEvents(data.Events || []);
+    setLoading(false);
+  };
   useEffect(() => {
-    fetchCategories();
+    const searchQuery = search.get("search");
+    if (searchQuery && searchQuery.trim() !== "") {
+      fetchEvent(searchQuery);
+    } else {
+      fetchEvent("");
+    }
+    if (Categories.length === 0) {
+      fetchCategories();
+    }
   }, []);
   return (
-    <div className={`flex gap-10 w-full md:p-10 p-5`}>
+    <div className={`flex gap-10 w-full bg-[#fafafa] md:p-10 p-5`}>
       <div
         className={`absolute inset-0 bg-black w-full h-full md:hidden block z-50 opacity-75 ${
           Toggle === false ? "hidden" : "block"
@@ -79,7 +114,11 @@ export default function SearchPage() {
             </svg>
             <label className="text-gray-600">Category</label>
           </div>
-          <select className="w-full p-2 border rounded-md">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full p-2 border rounded-md ml-2 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          >
             <option value="All" className="text-gray-500">
               All Categories
             </option>
@@ -110,39 +149,17 @@ export default function SearchPage() {
             </svg>
             <label className="text-gray-600">Location</label>
           </div>
-          <div className="flex flex-col gap-2 px-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="location"
-                value="both"
-                className="accent-yellow-300"
-              />
-              <span className="text-sm font-medium">All events</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="location"
-                value="online"
-                className="accent-yellow-300"
-                defaultChecked
-              />
-              <span className="text-sm font-medium">Online</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="location"
-                value="on-site"
-                className="accent-yellow-300"
-              />
-              <span className="text-sm font-medium">On-site</span>
-            </label>
-          </div>
+          <input
+            type="text"
+            name="location"
+            value={Location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="City or Country"
+            className="ml-3 border rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+          />
         </div>
         <div className="flex flex-col items-start w-full gap-2 px-6">
-          <div className="flex justify-center items-center gap-2">
+          <div className="flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -166,6 +183,8 @@ export default function SearchPage() {
                 type="radio"
                 name="location"
                 value="All"
+                checked={selectedLocation === "All"}
+                onChange={handleChange}
                 className="accent-yellow-300"
               />
               <span className="text-sm font-medium">All events</span>
@@ -175,8 +194,9 @@ export default function SearchPage() {
                 type="radio"
                 name="location"
                 value="Paid"
+                checked={selectedLocation === "Paid"}
+                onChange={handleChange}
                 className="accent-yellow-300"
-                defaultChecked
               />
               <span className="text-sm font-medium">Paid only</span>
             </label>
@@ -184,38 +204,64 @@ export default function SearchPage() {
               <input
                 type="radio"
                 name="location"
+                checked={selectedLocation === "Free"}
+                onChange={handleChange}
                 value="Free"
                 className="accent-yellow-300"
               />
               <span className="text-sm font-medium">Free Only</span>
             </label>
           </div>
-          <div className="flex flex-col items-start w-full gap-2">
-            <h2 className="text-xl font-semibold">Event Type</h2>
-            <div className="flex flex-col gap-2 px-6">
-              <div className="flex items-center gap-2">
-                <input type="checkbox" className="accent-yellow-300" />
-                <span className="text-sm font-medium">🏆 Hackathon</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" className="accent-yellow-300" />
-                <span className="text-sm font-medium">🛠️ Workshop</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" className="accent-yellow-300" />
-                <span className="text-sm font-medium">🎓 Bootcamp</span>
-              </div>
+        </div>
+        <div className="flex flex-col items-start w-full gap-2 px-6">
+          <h2 className="text-xl font-semibold">Event Type</h2>
+          <div className="flex flex-col gap-2 px-6">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="accent-yellow-300"
+                value="Hackathon"
+                onChange={handleTypeChange}
+              />
+              <span className="text-sm font-medium">🏆 Hackathon</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="accent-yellow-300"
+                value="Workshop"
+                onChange={handleTypeChange}
+              />
+              <span className="text-sm font-medium">🛠️ Workshop</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="accent-yellow-300"
+                value="Bootcamp"
+                onChange={handleTypeChange}
+              />
+              <span className="text-sm font-medium">🎓 Bootcamp</span>
             </div>
           </div>
         </div>
-        <Button className="rounded-2xl w-full mb-3">Apply Filters</Button>
+        <Button
+          className="rounded-2xl w-full mb-3"
+          disabled={Events.length === 0}
+        >
+          Apply Filters
+        </Button>
       </div>
       <div className="flex flex-col w-full h-full">
         <div className="flex justify-between items-center">
           <div>
             {" "}
             <h1 className="text-2xl font-bold">Search Results</h1>
-            <p className="text-gray-600">6 events found</p>
+            <p className="text-gray-600">
+              {Events.length === 0
+                ? "No events found"
+                : `${Events.length} events found`}
+            </p>
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -233,95 +279,173 @@ export default function SearchPage() {
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
           </svg>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl max-h-[460px] space-y-4 border border-gray-200 p-4"
+        {Loading ? (
+          // Loader animation
+          <div className="flex items-center justify-center h-96 w-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-20 h-20 animate-spin"
+              viewBox="0 0 200 200"
             >
-              <div className="relative">
-                <div className="absolute top-2 left-2 bg-gray-700 opacity-70 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                  Workshop
-                </div>
-                <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full">
-                  Online
-                </div>
-                <Image
-                  src={Workshop}
-                  alt="Workshop"
-                  width={300}
-                  height={200}
-                  className="rounded-2xl"
+              <radialGradient
+                id="a8"
+                cx=".66"
+                fx=".66"
+                cy=".3125"
+                fy=".3125"
+                gradientTransform="scale(1.5)"
+              >
+                <stop offset="0" stopColor="#f9c623" />
+                <stop offset=".3" stopColor="#f9c623" stopOpacity=".9" />
+                <stop offset=".6" stopColor="#f9c623" stopOpacity=".6" />
+                <stop offset=".8" stopColor="#f9c623" stopOpacity=".3" />
+                <stop offset="1" stopColor="#f9c623" stopOpacity="0" />
+              </radialGradient>
+              <circle
+                transformOrigin="center"
+                fill="none"
+                stroke="url(#a8)"
+                strokeWidth="15"
+                strokeLinecap="round"
+                strokeDasharray="200 1000"
+                strokeDashoffset="0"
+                cx="100"
+                cy="100"
+                r="70"
+              >
+                <animateTransform
+                  type="rotate"
+                  attributeName="transform"
+                  calcMode="spline"
+                  dur="2"
+                  values="360;0"
+                  keyTimes="0;1"
+                  keySplines="0 0 1 1"
+                  repeatCount="indefinite"
                 />
+              </circle>
+              <circle
+                transformOrigin="center"
+                fill="none"
+                opacity=".2"
+                stroke="#f9c623"
+                strokeWidth="15"
+                strokeLinecap="round"
+                cx="100"
+                cy="100"
+                r="70"
+              />
+            </svg>
+          </div>
+        ) : (
+          // Events grid
+          <>
+            {Events.length === 0 && Loading ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500">
+                  No events found for this search.
+                </p>
               </div>
-              <h2 className="text-xl font-semibold">
-                React Advanced Workshoh2: Building Scalable Applications
-              </h2>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-gray-500 w-5 h-5"
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {Events.map((event: any, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl max-h-[460px] flex flex-col justify-between space-y-4 border border-gray-200 p-4"
                   >
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  <p className="text-sm text-gray-500 font-medium">
-                    San Francisco, CA
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-calendar text-gray-500 h-5 w-5"
-                  >
-                    <path d="M8 2v4"></path>
-                    <path d="M16 2v4"></path>
-                    <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                    <path d="M3 10h18"></path>
-                  </svg>
-                  <p className="text-sm text-gray-500 font-medium">Dec 20-21</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-gray-500 w-5 h-5"
-                  >
-                    <line x1="12" x2="12" y1="2" y2="22"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                  </svg>
-                  <p className="text-sm text-black font-medium">Free</p>
-                </div>
+                    <div className="relative">
+                      <div className="absolute top-2 left-2 bg-gray-700 opacity-70 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        {event.type}
+                      </div>
+                      <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full">
+                        Online
+                      </div>
+                      <Image
+                        src={Workshop}
+                        alt="Workshop"
+                        width={300}
+                        height={200}
+                        className="rounded-2xl"
+                      />
+                    </div>
+                    <h2 className="text-xl font-semibold">{event.title}</h2>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-500 w-5 h-5"
+                        >
+                          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <p className="text-sm text-gray-500 font-medium">
+                          {event.place}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-calendar text-gray-500 h-5 w-5"
+                        >
+                          <path d="M8 2v4"></path>
+                          <path d="M16 2v4"></path>
+                          <rect
+                            width="18"
+                            height="18"
+                            x="3"
+                            y="4"
+                            rx="2"
+                          ></rect>
+                          <path d="M3 10h18"></path>
+                        </svg>
+                        <p className="text-sm text-gray-500 font-medium">
+                          {event.date}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-500 w-5 h-5"
+                        >
+                          <line x1="12" x2="12" y1="2" y2="22"></line>
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <p className="text-sm text-black font-medium">
+                          {event.price === 0 ? "Free" : `$${event.price}`}
+                        </p>
+                      </div>
+                    </div>
+                    <Button className="rounded-xl w-full">View Details</Button>
+                  </div>
+                ))}
               </div>
-              <Button className="rounded-xl w-full">View Details</Button>
-            </div>
-          ))}
-        </div>
-        <div> </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

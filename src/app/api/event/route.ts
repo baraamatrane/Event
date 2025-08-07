@@ -7,8 +7,17 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     // Only allow the user from the token to create events for themselves
-    const { title, description, image, date, place, host, category, price } =
-      await req.json();
+    const {
+      title,
+      description,
+      image,
+      date,
+      place,
+      host,
+      category,
+      price,
+      type,
+    } = await req.json();
 
     // Basic input validation
     if (
@@ -19,6 +28,7 @@ export async function POST(req: NextRequest) {
       !place ||
       !host ||
       !price ||
+      !type ||
       !category
     ) {
       return NextResponse.json(
@@ -35,6 +45,8 @@ export async function POST(req: NextRequest) {
       place,
       category,
       host,
+      price,
+      type,
     });
     const Createdevent = await NewEvent.save();
     return NextResponse.json({ Createdevent }, { status: 201 });
@@ -76,7 +88,6 @@ export async function GET(req: NextRequest) {
       // Use $regex for partial and case-insensitive location match
       query.place = { $regex: location, $options: "i" };
     }
-
     const Events = await Event.find(query)
       .skip(skip)
       .limit(limit)
