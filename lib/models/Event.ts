@@ -34,6 +34,10 @@ const EventSchema = new mongoose.Schema({
     enum: ["Bootcamp", "Workshop", "Hackathon"],
     required: true,
   },
+  link: {
+    type: String,
+    required: true,
+  },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",

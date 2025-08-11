@@ -63,6 +63,8 @@ export async function GET(req: NextRequest) {
     const limit = Number(req.nextUrl.searchParams.get("limit")) || 5;
     const search = req.nextUrl.searchParams.get("search_query");
     const category = req.nextUrl.searchParams.get("category");
+    const Paid = req.nextUrl.searchParams.get("paid");
+    const type = req.nextUrl.searchParams.get("type");
     const location = req.nextUrl.searchParams.get("location");
     const skip = (page - 1) * limit;
 
@@ -78,14 +80,12 @@ export async function GET(req: NextRequest) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { place: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
       ];
     }
     if (location) {
-      query.$or = [
-        { title: { $regex: location, $options: "i" } },
-        { description: { $regex: location, $options: "i" } },
-        { place: { $regex: location, $options: "i" } },
-      ];
+      query.$or = [{ place: { $regex: location, $options: "i" } }];
     }
     if (category) {
       query.category = category;
@@ -93,6 +93,14 @@ export async function GET(req: NextRequest) {
     if (location) {
       // Use $regex for partial and case-insensitive location match
       query.place = { $regex: location, $options: "i" };
+    }
+    if (type) {
+      const types = type.split(",").map((t) => t.trim());
+      query.type = { $in: types }; // Match any of the selected types
+    }
+    if (Paid) {
+      console.log("Paid filter applied:", Paid);
+      query.price = Paid === "Free" ? 0 : { $gt: 0 }; // Adjust query based on Paid value
     }
     const Events = await Event.find(query)
       .skip(skip)

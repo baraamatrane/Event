@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import Workshop from "@/../public/workshop-1.jpg";
+import Workshopimg from "@/../public/workshop-1.jpg";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -19,18 +19,13 @@ export default function SearchPage() {
   const [Events, setEvents] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [Loading, setLoading] = useState(true);
+  const [Bootcamp, setBootcamp] = useState(false);
+  const [Hackathon, setHackathon] = useState(false);
+  const [Workshop, setWorkshop] = useState(false);
   const [Paid, setPaid] = useState("All");
   const [Location, setLocation] = useState("");
   const search = useSearchParams();
-  const [selectedLocation, setSelectedLocation] = useState("");
   const [Type, setType] = useState([""]);
-  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setType((prev) =>
-      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
-    );
-    console.log("Selected Types:", Type);
-  };
   const fetchCategories = async () => {
     const res = await fetch("/api/category");
     const data = await res.json();
@@ -52,14 +47,22 @@ export default function SearchPage() {
     if (selectedCategory && selectedCategory !== "All") {
       url += `&category=${encodeURIComponent(selectedCategory)}`;
     }
-    if (selectedLocation) {
-      url += `&location=${encodeURIComponent(selectedLocation)}`;
+    if (Location) {
+      url += `&location=${encodeURIComponent(Location)}`;
     }
-    if (Paid && Paid !== "") {
+    if (Paid && Paid !== "All") {
       url += `&paid=${encodeURIComponent(Paid)}`;
     }
-    if (Type.length > 0 && Type[0] !== "") {
-      url += `&type=${encodeURIComponent(Type.join(","))}`;
+    if (Bootcamp || Hackathon || Workshop) {
+      url += `&type=${encodeURIComponent(
+        [
+          Bootcamp && "Bootcamp",
+          Hackathon && "Hackathon",
+          Workshop && "Workshop",
+        ]
+          .filter(Boolean)
+          .join(",")
+      )}`;
     }
     const res = await fetch(url);
     const data = await res.json();
@@ -240,7 +243,8 @@ export default function SearchPage() {
                 type="checkbox"
                 className="accent-yellow-300"
                 value="Hackathon"
-                onChange={handleTypeChange}
+                checked={Hackathon}
+                onChange={() => setHackathon((prev) => !prev)}
               />
               <span className="text-sm font-medium">🏆 Hackathon</span>
             </div>
@@ -248,8 +252,9 @@ export default function SearchPage() {
               <input
                 type="checkbox"
                 className="accent-yellow-300"
+                checked={Workshop}
                 value="Workshop"
-                onChange={handleTypeChange}
+                onChange={() => setWorkshop((prev) => !prev)}
               />
               <span className="text-sm font-medium">🛠️ Workshop</span>
             </div>
@@ -258,7 +263,8 @@ export default function SearchPage() {
                 type="checkbox"
                 className="accent-yellow-300"
                 value="Bootcamp"
-                onChange={handleTypeChange}
+                checked={Bootcamp}
+                onChange={() => setBootcamp((prev) => !prev)}
               />
               <span className="text-sm font-medium">🎓 Bootcamp</span>
             </div>
@@ -318,7 +324,6 @@ export default function SearchPage() {
                 <stop offset="1" stopColor="#f9c623" stopOpacity="0" />
               </radialGradient>
               <circle
-                transformOrigin="center"
                 fill="none"
                 stroke="url(#a8)"
                 strokeWidth="15"
@@ -341,7 +346,6 @@ export default function SearchPage() {
                 />
               </circle>
               <circle
-                transformOrigin="center"
                 fill="none"
                 opacity=".2"
                 stroke="#f9c623"
@@ -377,7 +381,7 @@ export default function SearchPage() {
                         Online
                       </div>
                       <Image
-                        src={Workshop}
+                        src={Workshopimg}
                         alt="Workshop"
                         width={300}
                         height={200}
@@ -451,7 +455,7 @@ export default function SearchPage() {
                           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                         <p className="text-sm text-black font-medium">
-                          {event.price === 0 ? "Free" : `$${event.price}`}
+                          {event.price === 0 ? "Free" : `${event.price}`}
                         </p>
                       </div>
                     </div>
