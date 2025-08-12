@@ -13,9 +13,9 @@ const SignupSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    const { email, password } = await req.json();
+    const { name, email, password } = await req.json();
 
-    const parsed = SignupSchema.safeParse({ email, password });
+    const parsed = SignupSchema.safeParse({ name, email, password });
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Email and Password are required" },
@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
     console.log(hashedPassword);
     const newUser = new User({
+      Fullname: name,
       email,
       password: hashedPassword,
     });

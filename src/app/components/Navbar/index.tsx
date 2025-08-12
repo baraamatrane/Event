@@ -59,8 +59,12 @@ export default function Navbar() {
           </Button>
         </div>
         <div className="md:space-x-2 space-x-0 flex items-center">
-          <Button variant="ghost"> Sign in</Button>
-          <Button> Sign up</Button>
+          <Link href="/login">
+            <Button variant="ghost">Log in</Button>
+          </Link>{" "}
+          <Link href="/signup">
+            <Button variant="default"> Sign up</Button>
+          </Link>
         </div>
       </div>
     </div>

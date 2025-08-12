@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       category,
       price,
       type,
+      link,
     } = await req.json();
 
     // Basic input validation
@@ -29,7 +30,8 @@ export async function POST(req: NextRequest) {
       !host ||
       !price ||
       !type ||
-      !category
+      !category ||
+      !link
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest) {
       host,
       price,
       type,
+      link,
     });
     const Createdevent = await NewEvent.save();
     return NextResponse.json({ Createdevent }, { status: 201 });

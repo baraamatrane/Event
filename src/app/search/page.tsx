@@ -4,6 +4,7 @@ import Workshopimg from "@/../public/workshop-1.jpg";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function SearchPage() {
   const [Toggle, setToggle] = useState(false);
@@ -459,7 +460,11 @@ export default function SearchPage() {
                         </p>
                       </div>
                     </div>
-                    <Button className="rounded-xl w-full">View Details</Button>
+                    <Link href={`/event/${event._id}`}>
+                      <Button className="rounded-xl w-full">
+                        View Details
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>

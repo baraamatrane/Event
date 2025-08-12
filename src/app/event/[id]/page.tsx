@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import Workshopimg from "@/../public/bootcamp2.jpg";
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,26 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 export default function EventPage() {
-  // Get the event ID from the URL
-  const params = useParams();
-  const id: any = params.id;
+  const { id } = useParams<{ id: string }>(); // Type safety
   const [loading, setLoading] = useState(true);
-  const [event, setEvent] = useState<any>([]);
+  const [event, setEvent] = useState<any>(null);
+  const [relatedEvents, setRelatedEvents] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const FetchEventCategory = async (category: string) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/event?category=${category}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch events");
+      const data = await res.json();
+      console.log("Fetched events by category:", data.events);
+      return data.events || [];
+    } catch (error) {
+      console.error("Error fetching events by category:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
@@ -19,6 +34,7 @@ export default function EventPage() {
       setLoading(false);
       return;
     }
+
     const fetchEvent = async () => {
       try {
         const res = await fetch(
@@ -26,23 +42,31 @@ export default function EventPage() {
         );
         if (!res.ok) {
           setError("Event Not Found");
-          setLoading(false);
           return;
         }
         const data = await res.json();
-        setEvent(data.event || data); // adjust according to your API response
-      } catch (err) {
+        const fetchedEvent = data.event || data;
+        setEvent(fetchedEvent);
+
+        // Fetch related events only after we have the category
+        if (fetchedEvent?.category) {
+          const related = await FetchEventCategory(fetchedEvent.category);
+          setRelatedEvents(related);
+        }
+      } catch {
         setError("Failed to fetch event");
       } finally {
         setLoading(false);
       }
     };
+
     fetchEvent();
   }, [id]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
+        {/* Your loader SVG unchanged */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-20 h-20 animate-spin"
@@ -112,12 +136,12 @@ export default function EventPage() {
     );
   }
 
-  // Fallback image if event.image is not present
   const eventImage = Workshopimg;
 
   return (
     <div className="w-full h-full bg-[#fafafa]">
       <div className="flex flex-col items-center justify-center p-6 m-auto md:max-w-4xl">
+        {/* Event Details */}
         <div className="flex md:flex-row flex-col w-full gap-10">
           <div className="md:w-1/3 w-full space-y-4">
             <Image
@@ -143,6 +167,7 @@ export default function EventPage() {
               {event?.title || "Event Title"}
             </h1>
             <div className="flex items-center gap-3">
+              {/* Date */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -169,6 +194,7 @@ export default function EventPage() {
               </span>
             </div>
             <div className="flex items-center gap-3">
+              {/* Location */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -199,7 +225,58 @@ export default function EventPage() {
           Register Now
         </Button>
       </div>
-      {/* Related Events section can be implemented similarly */}
+
+      {/* Related Events */}
+      <div className="mt-8 p-10">
+        <h2 className="text-2xl text-center font-bold mb-4">Related Events</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {relatedEvents.length === 0 ? (
+            <p className="text-gray-500">No related events found.</p>
+          ) : (
+            relatedEvents.map((re, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl max-h-[460px] flex flex-col justify-between space-y-4 border border-gray-200 p-4"
+              >
+                <div className="relative">
+                  <div className="absolute top-2 left-2 bg-gray-700 opacity-70 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    {re.type}
+                  </div>
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded-full">
+                    Online
+                  </div>
+                  <Image
+                    src={Workshopimg}
+                    alt="Workshop"
+                    width={300}
+                    height={200}
+                    className="rounded-2xl"
+                  />
+                </div>
+                <h2 className="text-xl font-semibold">{re.title}</h2>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-gray-500 font-medium">
+                      {re.place}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-gray-500 font-medium">
+                      {re.date}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-black font-medium">
+                      {re.price === 0 ? "Free" : `$${re.price}`}
+                    </p>
+                  </div>
+                </div>
+                <Button className="rounded-xl w-full">View Details</Button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
