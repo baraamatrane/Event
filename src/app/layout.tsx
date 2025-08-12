@@ -3,7 +3,6 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Session from "./components/session";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -24,11 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={nunito.variable}>
       <body className="antialiased">
-        <Session>
-          <Navbar />
-          {children}
-          <Footer />
-        </Session>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   );

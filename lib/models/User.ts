@@ -33,7 +33,11 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user"],
       default: "user",
     },
-
+    provider: {
+      type: String,
+      enum: ["google", "local", "github"],
+      default: "local",
+    },
     Booking: [
       {
         type: mongoose.Schema.Types.ObjectId,
