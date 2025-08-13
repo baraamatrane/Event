@@ -1,7 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { set } from "mongoose";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignIn() {
@@ -9,26 +11,22 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
-    // Example POST request (replace URL with your API endpoint)
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      setLoading(false);
-      if (!res.ok) {
-        setError("Invalid credentials");
-      } else {
-        setError("Log in sucsseful");
-      }
-    } catch {
-      setError("Something went wrong");
+    setError("");
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+    setLoading(false);
+    if (res?.error) {
+      setError(res.error);
+    } else {
+      setError("Log in successfully");
+      router.push("/");
     }
   };
 
@@ -96,9 +94,19 @@ export default function SignIn() {
             {" "}
             <h2 className="text-sm text-gray-500 text-end">Forgot password?</h2>
           </Link>
-          {error && <div className="text-red-500">{error}</div>}
+          {error && (
+            <div
+              className={`${
+                error === "Log in successfully"
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {error}
+            </div>
+          )}
           <Button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Logging in..." : "Log In"}
           </Button>
         </form>
         <div className="text-gray-500">

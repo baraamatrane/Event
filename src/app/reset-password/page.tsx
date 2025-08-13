@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { set } from "mongoose";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Forgotpass() {
@@ -11,6 +11,7 @@ export default function Forgotpass() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   if (!token || token === "") {
     return (
@@ -55,6 +56,7 @@ export default function Forgotpass() {
     setLoading(false);
     if (res.ok) {
       setError("Password updated successfully");
+      router.push("/login");
     } else {
       const data = await res.json();
       setError(data.message || "Something went wrong");

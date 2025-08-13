@@ -34,21 +34,7 @@ export async function POST(req: NextRequest) {
     if (!createdUser) {
       return NextResponse.json({ error: "Can not Sign up" }, { status: 400 });
     }
-    const token = jwt.sign(
-      { id: createdUser._id, email: createdUser.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: "24h" }
-    );
     const response = NextResponse.json(createdUser, { status: 201 });
-    response.cookies.set({
-      name: "user",
-      value: token,
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
 
     return response;
   } catch (error) {

@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 const secret = process.env.NEXTAUTH_SECRET;
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret });
+  const token = (await getToken({ req, secret })) || req.cookies.get("user");
 
   const { pathname } = req.nextUrl;
 

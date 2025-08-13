@@ -1,5 +1,5 @@
 "use client";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,12 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("Sign up");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading("Sign up...");
+    setLoading("Signing up...");
     // Example POST request (replace URL with your API endpoint)
     try {
       const res = await fetch("/api/signup", {
@@ -24,15 +25,17 @@ export default function Signup() {
         body: JSON.stringify({ name: Name, email, password }),
       });
       setLoading("Sign up");
-      if (res.status === 201) {
-        const data = await res.json();
-        console.log(data);
-        setError("Sign up successful");
-      }
-      if (!res.ok) {
-        setError("Invalid credentials");
+      if (res.ok) {
+        setError("Sign up successfully");
+        await signIn("credentials", {
+          redirect: false,
+          name: Name,
+          email,
+          password,
+        });
+        router.push("/");
       } else {
-        return redirect("/");
+        setError("Invalid credentials");
       }
     } catch {
       setError("Something went wrong");
@@ -108,7 +111,17 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <div className="text-red-500">{error}</div>}
+          {error && (
+            <div
+              className={`${
+                error === "Sign up successfully"
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            >
+              {error}
+            </div>
+          )}
           <Button type="submit" disabled={loading !== "Sign up"}>
             {loading !== "Sign up" ? "Signing up..." : "Sign Up"}
           </Button>
