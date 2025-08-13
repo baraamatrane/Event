@@ -4,8 +4,10 @@ import Logo from "@/../public/logo.png";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 export default function Navbar() {
   const [Search, setSearch] = useState("");
+  const session = useSession();
   return (
     <div className="bg-white w-full shadow-2xs md:p-5 p-3 sticky top-0 z-50 flex md:justify-around justify-between items-center">
       <Link href="/" className="flex items-center cursor-pointer">
@@ -59,12 +61,27 @@ export default function Navbar() {
           </Button>
         </div>
         <div className="md:space-x-2 space-x-0 flex items-center">
-          <Link href="/login">
-            <Button variant="ghost">Log in</Button>
-          </Link>{" "}
-          <Link href="/signup">
-            <Button variant="default"> Sign up</Button>
-          </Link>
+          {session.status === "loading" ? (
+            <Button variant="ghost" disabled>
+              Loading...
+            </Button>
+          ) : session.status === "authenticated" ? (
+            <>
+              <Button variant="ghost">{session?.data?.user?.name}</Button>
+              <Button variant="secondary" onClick={() => signOut()}>
+                Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost">Log in</Button>
+              </Link>{" "}
+              <Link href="/signup">
+                <Button variant="default"> Sign up</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>

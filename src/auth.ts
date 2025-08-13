@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import connectDB from "../lib/db";
 import User from "../lib/models/User";
+import GitHub from "next-auth/providers/github";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -9,17 +10,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
   ],
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
-    async signIn({
-      user,
-      account,
-      profile,
-    }: {
+    async signIn(params: {
       user: any;
-      account: any;
-      profile: any;
+      account?: any;
+      profile?: any;
+      email?: any;
+      credentials?: any;
     }) {
+      const { user, account, profile } = params;
       await connectDB();
       const existingUser = await User.findOne({ email: user.email });
 

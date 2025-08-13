@@ -55,7 +55,7 @@ export default function SignIn() {
             </svg>
             Continue with Google
           </Button>
-          <Button variant="ghost">
+          <Button variant="ghost" onClick={() => signIn("github")}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
