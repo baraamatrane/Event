@@ -23,7 +23,7 @@ export default function SignIn() {
     });
     setLoading(false);
     if (res?.error) {
-      setError(res.error);
+      setError("Something went wrong");
     } else {
       setError("Log in successfully");
       router.push("/");
