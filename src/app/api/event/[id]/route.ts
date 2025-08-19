@@ -3,11 +3,9 @@ import { NextResponse } from "next/server";
 import connectDB from "../../../../../lib/db";
 import Event from "../../../../../lib/models/Event";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = await params;
+export async function GET(req: Request, context: { params: { id: string } }) {
+  const { id } = context.params; // <-- Correct way to get id
+
   // Validate the ID format mongoose id
   if (!isValidObjectId(id)) {
     return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
